@@ -8,5 +8,4 @@ export type DogBreed = {
   weight: string;
   height: string;
   description: string;
-  bred_for?: string;
 };

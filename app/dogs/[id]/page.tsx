@@ -96,17 +96,6 @@ export default async function DogDetailsPage({ params }: DogDetailsPageProps) {
                 )}
               </div>
             </section>
-
-            {dog.bred_for ? (
-              <section className="rounded-[1.5rem] bg-[#fffaf1] p-6 lg:col-span-2">
-                <h2 className="text-sm font-black uppercase tracking-[0.18em] text-[#b27b4f]">
-                  Bred for
-                </h2>
-                <p className="mt-3 text-lg font-semibold leading-8 text-[#72533c]">
-                  {dog.bred_for}
-                </p>
-              </section>
-            ) : null}
           </div>
         </article>
       </section>
