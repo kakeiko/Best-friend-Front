@@ -4,17 +4,12 @@ import { unstable_cache } from "next/cache";
 
 const DOGS_REVALIDATE_SECONDS = 3600;
 
-type ApiMetric = {
-  imperial?: string;
-  metric?: string;
-};
-
 type ApiDogBreed = Omit<DogBreed,"group" | "height" | "temperament" | "weight"> & {
   breed_group?: string;
   group?: string;
-  height: ApiMetric | string;
+  height: string;
   temperament?: string[] | string;
-  weight: ApiMetric | string;
+  weight: string;
 };
 
 function normalizeMetric(value: string): string {
@@ -29,12 +24,12 @@ function normalizeMetric(value: string): string {
   return value.trim();
 }
 
-function getMetricValue(value: ApiMetric | string): string {
+function getMetricValue(value:string): string {
   if (typeof value === "string") {
     return normalizeMetric(value);
   }
 
-  return normalizeMetric(value.metric ?? value.imperial ?? "");
+  return normalizeMetric(value ?? "");
 }
 
 function normalizeTemperament(value?: string[] | string): string[] {
@@ -54,29 +49,19 @@ function normalizeTemperament(value?: string[] | string): string[] {
 
 async function fetchDogBreedsFromApi(): Promise<ApiDogBreed[]> {
   const baseApiLink = process.env.API_LINK_INFO;
-  const apiKey = process.env.API_KEY;
-
+  
   if (!baseApiLink) {
     throw new Error("API_LINK_INFO was not defined");
   }
 
-  if (!apiKey) {
-    throw new Error("DOG_API_KEY was not defined");
-  }
-
   const response = await fetch(baseApiLink, {
     method: "GET",
-    headers: {
-      "x-api-key": apiKey,
-    },
     next: {
       revalidate: DOGS_REVALIDATE_SECONDS,
       tags: ["dogs"],
     },
   });
-
   console.log(response.ok)
-
   if (!response.ok) {
     throw new Error("Failed to fetch dogs");
   }
@@ -88,7 +73,7 @@ function normalizeDogBreeds(dogs: ApiDogBreed[]): DogBreed[] {
   return dogs.map((dog) => ({
     ...dog,
     description: dog.description || "No description available yet.",
-    group: dog.group || dog.breed_group || "Not informed",
+    group: dog.group || "Not informed",
     life_span:
       dog.life_span && dog.life_span.trim() !== ""
         ? dog.life_span
